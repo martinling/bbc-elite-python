@@ -14,7 +14,7 @@ def int16(x):
 	sign = np.where(b[:,1] & 0x80, -1, 1)
 	return sign * magnitude
 
-shipdata = sys.stdin.read(0xA00)
+shipdata = sys.stdin.read(0xA51)
 open("ship.dat", 'wb').write(shipdata)
 
 source = vtkCubeSource()

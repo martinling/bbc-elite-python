@@ -1,8 +1,6 @@
 import numpy as np
 from vtk import *
 
-data = np.fromfile("ship.dat", dtype=np.uint8)
-
 def vertices(b):
 	magnitudes = b[:,0:3]
 	signs = b[:,3:4] & [0x80, 0x40, 0x20]
@@ -36,38 +34,36 @@ class Ship(object):
 		self.vertices = vertices(vertex_data)
 		self.edges = edge_data[:,2:4] / 4
 
-	def data_size(self):
-		return (20 +
-			6 * self.num_vertices +
-			4 * self.num_edges +
-			4 * self.num_faces)
-
-offset = 0x1CD
-
-ship = Ship(data[offset:])
-offset += ship.data_size()
-print ship.__dict__
-points = vtkPoints()
-points.SetNumberOfPoints(ship.num_vertices)
-for i, vertex in enumerate(ship.vertices):
-	points.SetPoint(i, vertex)
-lines = vtkCellArray()
-for edge in ship.edges:
-	line = vtkLine()
-	for i, vertex_id in enumerate(edge):
-		line.GetPointIds().SetId(i, vertex_id)
-	lines.InsertNextCell(line)
-poly = vtkPolyData()
-poly.SetPoints(points)
-poly.SetLines(lines)
-mapper = vtkPolyDataMapper()
-mapper.SetInputData(poly)
-actor = vtkActor()
-actor.SetMapper(mapper)
-renderer = vtkRenderer()
-renderer.AddActor(actor)
-window = vtkRenderWindow()
-window.AddRenderer(renderer)
-interactor = vtkRenderWindowInteractor()
-interactor.SetRenderWindow(window)
-interactor.Start()
+data = np.fromfile("ship.dat", dtype=np.uint8)
+offsets = data[2:62].view(np.uint16)
+print [(i, hex(o)) for i, o in enumerate(offsets)]
+for offset in offsets:
+	if offset == 0:
+		continue
+	#print hex(offset)
+	ship = Ship(data[offset - 0x5600:])
+	#print ship.__dict__
+	points = vtkPoints()
+	points.SetNumberOfPoints(ship.num_vertices)
+	for i, vertex in enumerate(ship.vertices):
+		points.SetPoint(i, vertex)
+	lines = vtkCellArray()
+	for edge in ship.edges:
+		line = vtkLine()
+		for i, vertex_id in enumerate(edge):
+			line.GetPointIds().SetId(i, vertex_id)
+		lines.InsertNextCell(line)
+	poly = vtkPolyData()
+	poly.SetPoints(points)
+	poly.SetLines(lines)
+	mapper = vtkPolyDataMapper()
+	mapper.SetInputData(poly)
+	actor = vtkActor()
+	actor.SetMapper(mapper)
+	renderer = vtkRenderer()
+	renderer.AddActor(actor)
+	window = vtkRenderWindow()
+	window.AddRenderer(renderer)
+	interactor = vtkRenderWindowInteractor()
+	interactor.SetRenderWindow(window)
+	interactor.Start()
