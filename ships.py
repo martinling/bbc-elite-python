@@ -20,7 +20,7 @@ class Ship(object):
 		self.num_vertices = header[8] / 6
 		self.num_edges = header[9]
 		self.bounty = header[10:12].view(np.uint16)[0]
-		self.num_faces = header[12]
+		self.num_faces = header[12] / 4
 		self.dot_distance = header[13]
 		self.max_energy = header[14]
 		self.max_speed = header[15]
