@@ -1,1 +1,1 @@
-../b-em/b-em -disc ../elite-beebasm/elite.ssd ../elite-beebasm/running.snp | python render.py
+../b-em/b-em -disc elite.ssd running.snp | python render.py

@@ -27,14 +27,14 @@ transforms = [None] * 13
 filters = [None] * 13
 
 while True:
-	buf = sys.stdin.read(13*36)
-	data = np.frombuffer(buf, dtype=np.uint8).reshape(13,36)
+	buf = sys.stdin.read(13*37)
+	data = np.frombuffer(buf, dtype=np.uint8).reshape(13,37)
 	for i, ship in enumerate(data[1:]):
 		if np.all(ship == 0):
 			continue
 		pos = int24(ship[0:9])
 		rot = int16(ship[9:27]).reshape(3,3) / float(0x6000)
-		rest = ship[27:36]
+		rest = ship[27:37]
 		print "Ship ", i
 		print "Position:", pos
 		print "Rotation:"
