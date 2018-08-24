@@ -1,6 +1,12 @@
 import numpy as np
+from vtk import *
 
 data = np.fromfile("ship.dat", dtype=np.uint8)
+
+def vertices(b):
+	magnitudes = b[:,0:3]
+	signs = b[:,3:4] & [0x80, 0x40, 0x20]
+	return magnitudes * np.where(signs, -1.0, 1.0)
 
 class Ship(object):
 
@@ -21,6 +27,14 @@ class Ship(object):
 		self.max_energy = header[14]
 		self.max_speed = header[15]
 		self.scale_factor = header[18]
+		data = data[header.nbytes:]
+		vertex_data = data[:6*self.num_vertices].reshape(-1,6)
+		data = data[vertex_data.nbytes:]
+		edge_data = data[:4*self.num_edges].reshape(-1,4)
+		data = data[edge_data.nbytes:]
+		face_data = data[:4*self.num_faces].reshape(-1,4)
+		self.vertices = vertices(vertex_data)
+		self.edges = edge_data[:,2:4] / 4
 
 	def data_size(self):
 		return (20 +
@@ -30,7 +44,30 @@ class Ship(object):
 
 offset = 0x1CD
 
-while offset < len(data):
-	ship = Ship(data[offset:])
-	print ship.__dict__
-	offset += ship.data_size()
+ship = Ship(data[offset:])
+offset += ship.data_size()
+print ship.__dict__
+points = vtkPoints()
+points.SetNumberOfPoints(ship.num_vertices)
+for i, vertex in enumerate(ship.vertices):
+	points.SetPoint(i, vertex)
+lines = vtkCellArray()
+for edge in ship.edges:
+	line = vtkLine()
+	for i, vertex_id in enumerate(edge):
+		line.GetPointIds().SetId(i, vertex_id)
+	lines.InsertNextCell(line)
+poly = vtkPolyData()
+poly.SetPoints(points)
+poly.SetLines(lines)
+mapper = vtkPolyDataMapper()
+mapper.SetInputData(poly)
+actor = vtkActor()
+actor.SetMapper(mapper)
+renderer = vtkRenderer()
+renderer.AddActor(actor)
+window = vtkRenderWindow()
+window.AddRenderer(renderer)
+interactor = vtkRenderWindowInteractor()
+interactor.SetRenderWindow(window)
+interactor.Start()
