@@ -42,7 +42,6 @@ while True:
 		print "Position:", pos
 		print "Rotation:"
 		print rot
-		print "State:", rest
 		if not transforms[i]:
 			transforms[i] = vtkTransform()
 			transforms[i].PostMultiply()

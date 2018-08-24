@@ -33,16 +33,18 @@ class Ship(object):
 		face_data = data[:4*self.num_faces].reshape(-1,4)
 		self.vertices = vertices(vertex_data)
 		self.edges = edge_data[:,2:4] / 4
+		if np.any(self.edges >= self.num_vertices):
+			raise IndexError
 
 data = np.fromfile("ship.dat", dtype=np.uint8)
 offsets = data[2:62].view(np.uint16)
-print [(i, hex(o)) for i, o in enumerate(offsets)]
 for offset in offsets:
 	if offset == 0:
 		continue
-	#print hex(offset)
-	ship = Ship(data[offset - 0x5600:])
-	#print ship.__dict__
+	try:
+		ship = Ship(data[offset - 0x5600:])
+	except IndexError:
+		continue
 	points = vtkPoints()
 	points.SetNumberOfPoints(ship.num_vertices)
 	for i, vertex in enumerate(ship.vertices):
