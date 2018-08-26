@@ -14,9 +14,6 @@ def int16(x):
 	sign = np.where(b[:,1] & 0x80, -1, 1)
 	return sign * magnitude
 
-shipdata = sys.stdin.read(0xA51)
-open("ship.dat", 'wb').write(shipdata)
-
 source = vtkCubeSource()
 camera = vtkCamera()
 camera.SetPosition(0, 0, 0)
@@ -30,8 +27,8 @@ transforms = [None] * 13
 filters = [None] * 13
 
 while True:
-	buf = sys.stdin.read(13*37)
-	data = np.frombuffer(buf, dtype=np.uint8).reshape(13,37)
+	ram = np.frombuffer(sys.stdin.read(0x10000), dtype=np.uint8)
+	data = ram[0x900:0x900 + 13*37].reshape(13,37)
 	for i, ship in enumerate(data[1:]):
 		if np.all(ship == 0):
 			continue
