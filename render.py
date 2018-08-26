@@ -42,6 +42,7 @@ while True:
 		print "Position:", pos
 		print "Rotation:"
 		print rot
+		print "State:", str.join(" ", ["%02X" % b for b in rest])
 		if not transforms[i]:
 			transforms[i] = vtkTransform()
 			transforms[i].PostMultiply()
