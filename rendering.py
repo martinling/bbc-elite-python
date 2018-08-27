@@ -12,9 +12,17 @@ def polygon_order(points, center, normal):
 	p2d = np.array([px, py]).T
 	return ConvexHull(np.array([px, py]).T).vertices
 
+def ship_faces(ship):
+	for i in range(ship.num_faces):
+		edges = np.any(ship.edge_faces == i, axis=1)
+		vertices = np.unique(ship.edges[edges].flatten())
+		center = np.mean(ship.vertices[vertices], axis=0)
+		normal = ship.normals[i]
+		yield vertices, center, normal
+
 def ship_model(ship):
 	points = vtkPoints()
-	points.SetNumberOfPoints(ship.num_vertices + ship.num_faces * 2)
+	points.SetNumberOfPoints(ship.num_vertices)
 	for i, vertex in enumerate(ship.vertices):
 		points.SetPoint(i, vertex)
 	lines = vtkCellArray()
@@ -24,28 +32,31 @@ def ship_model(ship):
 			line.GetPointIds().SetId(i, vertex_id)
 		lines.InsertNextCell(line)
 	polygons = vtkCellArray()
-	for i in range(ship.num_faces):
-		face_edges = np.any(ship.edge_faces == i, axis=1)
-		face_points = np.unique(ship.edges[face_edges].flatten())
-		face_center = np.mean(ship.vertices[face_points], axis=0)
-		face_normal = ship.normals[i]
-		face_order = polygon_order(ship.vertices[face_points], face_center, face_normal)
-		a = ship.num_vertices + 2*i
-		b = a + 1
-		points.SetPoint(a, face_center)
-		points.SetPoint(b, face_center + face_normal)
-		line = vtkLine()
-		line.GetPointIds().SetId(0, a)
-		line.GetPointIds().SetId(1, b)
-		lines.InsertNextCell(line)
+	for vertices, center, normal in ship_faces(ship):
+		order = polygon_order(ship.vertices[vertices], center, normal)
 		polygon = vtkPolygon()
 		ids = polygon.GetPointIds()
-		ids.SetNumberOfIds(len(face_order))
-		for k, point in enumerate(face_points[face_order]):
-			ids.SetId(k, point)
+		ids.SetNumberOfIds(len(order))
+		for i, point in enumerate(vertices[order]):
+			ids.SetId(i, point)
 		polygons.InsertNextCell(polygon)
 	model = vtkPolyData()
 	model.SetPoints(points)
 	model.SetLines(lines)
 	model.SetPolys(polygons)
+	return model
+
+def ship_normals(ship):
+	points = vtkPoints()
+	points.SetNumberOfPoints(ship.num_faces * 2)
+	lines = vtkCellArray()
+	for vertices, center, normal in ship_faces(ship):
+		points.SetPoint(2*i, center)
+		points.SetPoint(2*i + 1, center + normal)
+		line = vtkLine()
+		line.GetPointIds().SetId(0, 2*i)
+		line.GetPointIds().SetId(1, 2*i + 1)
+		lines.InsertNextCell(line)
+	model = vtkPolyData()
+	model.SetLines(lines)
 	return model
