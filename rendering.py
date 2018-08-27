@@ -11,7 +11,6 @@ def polygon_order(points, center, normal):
 	y = np.cross(x,z)
 	px = np.dot(points, x)
 	py = np.dot(points, y)
-	p2d = np.array([px, py]).T
 	return ConvexHull(np.array([px, py]).T).vertices
 
 def ship_faces(ship):
