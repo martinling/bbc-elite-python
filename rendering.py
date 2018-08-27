@@ -6,6 +6,8 @@ def normalise(vector):
 	return vector / np.linalg.norm(vector)
 
 def polygon_order(points, center, normal):
+	if len(points) == 0:
+		return np.array([])
 	x = normalise(points[0] - center)
 	z = normalise(normal)
 	y = np.cross(x,z)
@@ -42,6 +44,8 @@ def ship_model(ship):
 	polygons = vtkCellArray()
 	for vertices, center, normal in ship_faces(ship):
 		order = polygon_order(ship.vertices[vertices], center, normal)
+		if len(order) == 0:
+			continue
 		polygon = vtkPolygon()
 		ids = polygon.GetPointIds()
 		ids.SetNumberOfIds(len(order))
