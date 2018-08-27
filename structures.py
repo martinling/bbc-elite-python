@@ -114,14 +114,8 @@ class ShipData(object):
 			lines.InsertNextCell(line)
 		polygons = vtkCellArray()
 		for i in range(self.num_faces):
-			face_vertices = np.unique([
-				v for v in range(self.num_vertices)
-					if v in self.vertex_faces[v]])
-			face_edges = np.array([self.edges[e]
-				for e in range(self.num_edges)
-				if i in self.edge_faces[e]])
-			face_edge_ends = np.unique(face_edges.flatten())
-			face_points = face_edge_ends
+			face_edges = np.any(self.edge_faces == i, axis=1)
+			face_points = np.unique(self.edges[face_edges].flatten())
 			face_center = np.mean(self.vertices[face_points], axis=0)
 			face_normal = self.normals[i]
 			face_order = polygon_order(self.vertices[face_points], face_center, face_normal)
