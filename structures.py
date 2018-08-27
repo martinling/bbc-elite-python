@@ -13,9 +13,22 @@ def int16(x):
 	sign = np.where(b[:,1] & 0x80, -1, 1)
 	return sign * magnitude
 
+def nibbles(b):
+	shape = list(b.shape)
+	shape[-1] *= 2
+	result = np.empty(shape, dtype=np.uint8)
+	result[:,0::2] = b >> 4
+	result[:,1::2] = b & 0xF
+	return result
+
 def vertices(b):
 	magnitudes = b[:,0:3]
 	signs = b[:,3:4] & [0x80, 0x40, 0x20]
+	return magnitudes * np.where(signs, -1.0, 1.0)
+
+def normals(b):
+	magnitudes = b[:,1:4]
+	signs = b[:,0:1] & [0x80, 0x40, 0x20]
 	return magnitudes * np.where(signs, -1.0, 1.0)
 
 class ShipData(object):
@@ -48,7 +61,10 @@ class ShipData(object):
 		data = data[edge_data.nbytes:]
 		face_data = data[:4*self.num_faces].reshape(-1,4)
 		self.vertices = vertices(vertex_data)
+		self.vertex_faces = nibbles(vertex_data[:,4:6])
 		self.edges = edge_data[:,2:4] / 4
+		self.edge_faces = nibbles(edge_data[:,1:2])
+		self.normals = normals(face_data)
 		if np.any(self.edges >= self.num_vertices):
 			raise ValueError
 		points = vtkPoints()
@@ -61,9 +77,20 @@ class ShipData(object):
 			for i, vertex_id in enumerate(edge):
 				line.GetPointIds().SetId(i, vertex_id)
 			lines.InsertNextCell(line)
+		polygons = vtkCellArray()
+		for i, face in enumerate(face_data):
+			face_points = set([j for j in range(len((self.vertices)))
+				if i in self.vertex_faces[j]])
+			polygon = vtkPolygon()
+			ids = polygon.GetPointIds()
+			ids.SetNumberOfIds(len(face_points))
+			for k, point in enumerate(face_points):
+				ids.SetId(k, point)
+			polygons.InsertNextCell(polygon)
 		self.poly = vtkPolyData()
 		self.poly.SetPoints(points)
 		self.poly.SetLines(lines)
+		self.poly.SetPolys(polygons)
 
 class ShipState(object):
 
