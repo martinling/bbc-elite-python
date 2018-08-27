@@ -71,3 +71,36 @@ class ShipState(object):
 		self.pos = int24(state[0:9])
 		self.rot = int16(state[9:27]).reshape(3,3) / float(0x6000)
 		self.rest = state[27:37]
+
+class Game(object):
+
+	def __init__(self):
+		self.ship_data = [None] * 31
+		self.ship_types = [None] * 13
+		self.ship_states = [None] * 13
+
+	def update(self, ram):
+		# Get addresses where ship data is loaded
+		self.ship_addrs = ram[0x5600:0x5600+64].view(np.uint16)
+
+		# Read data for any ships we don't already know
+		for i, addr in enumerate(self.ship_addrs):
+			if addr == 0:
+				# Ship type not currently loaded
+				continue
+			elif self.ship_data[i]:
+				# Already read this ship type
+				continue
+			else:
+				# Read this ship type
+				try:
+					self.ship_data[i] = ShipData(ram, addr)
+				except ValueError:
+					pass
+
+		# Read ship states
+		self.ship_states = [ShipState(state)
+			for state in ram[0x900:0x900 + 13*37].reshape(13,37)]
+
+		# Read ship types
+		self.ship_types = ram[0x311:0x311 + 13]

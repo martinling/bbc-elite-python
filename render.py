@@ -14,50 +14,30 @@ cube = vtkCubeSource()
 
 transforms = [None] * 13
 filters = [None] * 13
-ships = [None] * 32
+
+game = Game()
 
 while True:
 	# Read RAM from emulator
 	ram = np.frombuffer(sys.stdin.read(0x10000), dtype=np.uint8)
 
-	# Get addresses where ship data is loaded
-	offsets = ram[0x5600:0x5600+64].view(np.uint16)
-
-	# Read data for any ships we don't already know
-	for i, offset in enumerate(offsets):
-		if offset == 0:
-			# Ship type not currently loaded
-			continue
-		elif ships[i]:
-			# Already read this ship type
-			continue
-		else:
-			# Read this ship type
-			try:
-				ships[i] = ShipData(ram, offset)
-			except ValueError:
-				pass
-
-	# Read ship states
-	states = ram[0x900:0x900 + 13*37].reshape(13,37)
-
-	# Read ship types
-	types = ram[0x311:0x311 + 13]
+	# Update game state
+	game.update(ram)
 
 	for i in range(13):
-		if types[i] == 0:
+		if game.ship_types[i] == 0:
 			# This ship slot not in use.
 			continue
-		if types[i] & 0x80:
+		if game.ship_types[i] & 0x80:
 			# Planet - not a wireframe, needs special handling.
 			continue
-		state = ShipState(states[i])
+		state = game.ship_states[i]
 		print "Ship ", i
 		print "Position:", state.pos
 		print "Rotation:"
 		print state.rot
 		print "State:", str.join(" ", ["%02X" % b for b in state.rest])
-		ship = ships[types[i] - 1]
+		ship = game.ship_data[game.ship_types[i] - 1]
 		if not transforms[i]:
 			transforms[i] = vtkTransform()
 			transforms[i].PostMultiply()
