@@ -1,6 +1,18 @@
 import numpy as np
 from vtk import *
 
+def int24(x):
+	b = x.reshape(-1, 3).astype(np.uint32)
+	magnitude = (b[:,2] & 0x7F) << 16 | b[:,1] << 8 | b[:,0]
+	sign = np.where(b[:,2] & 0x80, -1, 1)
+	return sign * magnitude
+
+def int16(x):
+	b = x.reshape(-1, 2).astype(np.uint32)
+	magnitude = (b[:,1] & 0x7F) << 8 | b[:,0]
+	sign = np.where(b[:,1] & 0x80, -1, 1)
+	return sign * magnitude
+
 def vertices(b):
 	magnitudes = b[:,0:3]
 	signs = b[:,3:4] & [0x80, 0x40, 0x20]
@@ -50,3 +62,10 @@ class ShipData(object):
 		self.poly = vtkPolyData()
 		self.poly.SetPoints(points)
 		self.poly.SetLines(lines)
+
+class ShipState(object):
+
+	def __init__(self, state):
+		self.pos = int24(state[0:9])
+		self.rot = int16(state[9:27]).reshape(3,3) / float(0x6000)
+		self.rest = state[27:37]
