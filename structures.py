@@ -39,6 +39,8 @@ class ShipData(object):
 		self.max_energy = header[14]
 		self.max_speed = header[15]
 		self.scale_factor = header[18]
+		self.laser_power = header[19] >> 3
+		self.missiles = header[19] & 0x07
 		data = data[header.nbytes:]
 		vertex_data = data[:6*self.num_vertices].reshape(-1,6)
 		data = data[vertex_data.nbytes:]
