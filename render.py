@@ -49,7 +49,7 @@ class Ship(object):
 		self.vertices = vertices(vertex_data)
 		self.edges = edge_data[:,2:4] / 4
 		if np.any(self.edges >= self.num_vertices):
-			raise IndexError
+			raise ValueError
 		points = vtkPoints()
 		points.SetNumberOfPoints(self.num_vertices)
 		for i, vertex in enumerate(self.vertices):
@@ -65,18 +65,7 @@ class Ship(object):
 		self.poly.SetLines(lines)
 
 	def __repr__(self):
-		return "Ship<0x%04X>" % self.addr
-
-ram = np.frombuffer(sys.stdin.read(0x10000), dtype=np.uint8)
-offsets = ram[0x5600:0x5600+64].view(np.uint16)
-ships = [None] * 32
-
-for i, offset in enumerate(offsets):
-	if offset != 0:
-		try:
-			ships[i] = Ship(ram, offset)
-		except IndexError:
-			pass
+		return "Ship<0x%0>" % self.addr
 
 camera = vtkCamera()
 camera.SetPosition(0, 0, 0)
@@ -89,20 +78,44 @@ cube = vtkCubeSource()
 
 transforms = [None] * 13
 filters = [None] * 13
+ships = [None] * 32
 
 while True:
+	# Read RAM from emulator
 	ram = np.frombuffer(sys.stdin.read(0x10000), dtype=np.uint8)
-	data = ram[0x900:0x900 + 13*37].reshape(13,37)
+
+	# Get addresses where ship data is loaded
+	offsets = ram[0x5600:0x5600+64].view(np.uint16)
+
+	# Read data for any ships we don't already know
+	for i, offset in enumerate(offsets):
+		if offset == 0:
+			# Ship type not currently loaded
+			continue
+		elif ships[i]:
+			# Already read this ship type
+			continue
+		else:
+			# Read this ship type
+			try:
+				ships[i] = Ship(ram, offset)
+			except ValueError:
+				pass
+
+	# Read ship states
+	states = ram[0x900:0x900 + 13*37].reshape(13,37)
+
+	# Read ship types
 	types = ram[0x311:0x311 + 13]
+
 	for i in range(13):
-		if types[i] == 0x80:
-			# planet
-			continue
 		if types[i] == 0:
+			# This ship slot not in use.
 			continue
-		state = data[i]
-		if np.all(state == 0):
+		if types[i] & 0x80:
+			# Planet - not a wireframe, needs special handling.
 			continue
+		state = states[i]
 		ship = ships[types[i] - 1]
 		pos = int24(state[0:9])
 		rot = int16(state[9:27]).reshape(3,3) / float(0x6000)
@@ -133,7 +146,4 @@ while True:
 		matrix[3,3] = 1
 		transforms[i].SetMatrix(matrix.reshape(16))
 		filters[i].Update()
-	print types
-	print map(hex, offsets)
-	print ships
 	window.Render()
