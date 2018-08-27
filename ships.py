@@ -12,6 +12,9 @@ game.update(ram)
 for ship in game.ship_data:
 	if not ship:
 		continue
+	print "Vertices:", ship.num_vertices
+	print "Edges:", ship.num_edges
+	print "Faces:", ship.num_faces
 	mapper = vtkPolyDataMapper()
 	mapper.SetInputData(ship.poly)
 	actor = vtkActor()
