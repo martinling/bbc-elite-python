@@ -5,7 +5,7 @@ import sys
 
 game = Game()
 
-ram = np.frombuffer(sys.stdin.read(0x10000), dtype=np.uint8)
+ram = np.fromfile("ram.dat", dtype=np.uint8)
 
 game.update(ram)
 
