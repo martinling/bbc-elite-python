@@ -1,6 +1,7 @@
 import numpy as np
 from vtk import *
 from structures import *
+from rendering import *
 import sys
 
 game = Game()
@@ -16,7 +17,7 @@ for ship in game.ship_data:
 	print "Edges:", ship.num_edges
 	print "Faces:", ship.num_faces
 	mapper = vtkPolyDataMapper()
-	mapper.SetInputData(ship.poly)
+	mapper.SetInputData(ship_model(ship))
 	actor = vtkActor()
 	actor.SetMapper(mapper)
 	renderer = vtkRenderer()

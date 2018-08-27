@@ -2,6 +2,7 @@ import sys
 import numpy as np
 from vtk import *
 from structures import *
+from rendering import *
 
 camera = vtkCamera()
 camera.SetPosition(0, 0, 0)
@@ -43,7 +44,7 @@ while True:
 			transforms[i].PostMultiply()
 			filters[i] = vtkTransformPolyDataFilter()
 			if ship:
-				filters[i].SetInputData(ship.poly)
+				filters[i].SetInputData(ship_model(ship))
 			else:
 				filters[i].SetInputConnection(cube.GetOutputPort())
 			filters[i].SetTransform(transforms[i])
