@@ -2,10 +2,12 @@ import numpy as np
 from scipy.spatial import ConvexHull
 from vtk import *
 
+def normalise(vector):
+	return vector / np.linalg.norm(vector)
+
 def polygon_order(points, center, normal):
-	x = points[0] - center
-	x /= np.linalg.norm(x)
-	z = normal / np.linalg.norm(normal)
+	x = normalise(points[0] - center)
+	z = normalise(normal)
 	y = np.cross(x,z)
 	px = np.dot(points, x)
 	py = np.dot(points, y)
@@ -14,10 +16,17 @@ def polygon_order(points, center, normal):
 
 def ship_faces(ship):
 	for i in range(ship.num_faces):
-		edges = np.any(ship.edge_faces == i, axis=1)
+		normal = normalise(ship.normals[i])
+		edges = np.nonzero(np.any(ship.edge_faces == i, axis=1))[0]
+		if len(edges) > 3:
+			edge_vectors = np.diff(
+				ship.vertices[ship.edges[edges]], axis=1)[:,0]
+			plane_error = np.array([
+				np.abs(np.dot(normal, normalise(e)))
+					for e in edge_vectors])
+			edges = edges[plane_error < 0.1]
 		vertices = np.unique(ship.edges[edges].flatten())
 		center = np.mean(ship.vertices[vertices], axis=0)
-		normal = ship.normals[i]
 		yield vertices, center, normal
 
 def ship_model(ship):
