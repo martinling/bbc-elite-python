@@ -70,7 +70,7 @@ class ShipData(object):
 		points = vtkPoints()
 		points.SetNumberOfPoints(self.num_vertices + self.num_faces * 2)
 		for i, vertex in enumerate(self.vertices):
-			points.SetPoint(i, vertex / 200.0)
+			points.SetPoint(i, vertex)
 		lines = vtkCellArray()
 		for edge in self.edges:
 			line = vtkLine()
@@ -90,8 +90,8 @@ class ShipData(object):
 			face_center = np.mean(self.vertices[face_points], axis=0)
 			a = self.num_vertices + 2*i
 			b = a + 1
-			points.SetPoint(a, face_center / 200.0)
-			points.SetPoint(b, (face_center + self.normals[i]) / 200.0)
+			points.SetPoint(a, face_center)
+			points.SetPoint(b, face_center + self.normals[i])
 			line = vtkLine()
 			line.GetPointIds().SetId(0, a)
 			line.GetPointIds().SetId(1, b)
