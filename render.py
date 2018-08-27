@@ -11,7 +11,6 @@ renderer = vtkRenderer()
 renderer.SetActiveCamera(camera)
 window = vtkRenderWindow()
 window.AddRenderer(renderer)
-cube = vtkCubeSource()
 
 transforms = [None] * 13
 filters = [None] * 13
@@ -43,10 +42,7 @@ while True:
 			transforms[i] = vtkTransform()
 			transforms[i].PostMultiply()
 			filters[i] = vtkTransformPolyDataFilter()
-			if ship:
-				filters[i].SetInputData(ship_model(ship))
-			else:
-				filters[i].SetInputConnection(cube.GetOutputPort())
+			filters[i].SetInputData(ship_model(ship))
 			filters[i].SetTransform(transforms[i])
 			mapper = vtkPolyDataMapper()
 			mapper.SetInputConnection(filters[i].GetOutputPort())
