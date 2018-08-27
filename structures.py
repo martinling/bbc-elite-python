@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial import ConvexHull
 from vtk import *
 
 def int24(x):
@@ -31,31 +32,6 @@ def normals(b):
 	signs = b[:,0:1] & [0x80, 0x40, 0x20]
 	return magnitudes * np.where(signs, -1.0, 1.0)
 
-def point_cmp(a, b):
-	ax, ay = a
-	bx, by = b
-
-	if ax >= 0 and bx < 0:
-		return -1
-	elif ax < 0 and bx >= 0:
-		return 1
-	elif ax == 0 and bx == 0:
-		if ay >= 0 or by >= 0:
-			return cmp(by, ay)
-		else:
-			return cmp(ay, by)
-
-	det = ax*by - bx*ay
-	if det < 0:
-		return -1
-	elif det > 0:
-		return 1
-
-	d1 = ax*ax + ay*ay
-	d2 = bx*bx + by*by
-
-	return cmp(d2, d1)
-
 def polygon_order(points, center, normal):
 	x = points[0] - center
 	x /= np.linalg.norm(x)
@@ -64,7 +40,7 @@ def polygon_order(points, center, normal):
 	px = np.dot(points, x)
 	py = np.dot(points, y)
 	p2d = np.array([px, py]).T
-	return sorted(range(len(points)), key=lambda i:p2d[i], cmp=point_cmp)
+	return ConvexHull(np.array([px, py]).T).vertices
 
 class ShipData(object):
 
@@ -129,7 +105,7 @@ class ShipData(object):
 			lines.InsertNextCell(line)
 			polygon = vtkPolygon()
 			ids = polygon.GetPointIds()
-			ids.SetNumberOfIds(len(face_points))
+			ids.SetNumberOfIds(len(face_order))
 			for k, point in enumerate(face_points[face_order]):
 				ids.SetId(k, point)
 			polygons.InsertNextCell(polygon)
