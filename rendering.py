@@ -69,3 +69,47 @@ def ship_normals(ship):
 	model = vtkPolyData()
 	model.SetLines(lines)
 	return model
+
+class ShipInstance(object):
+
+	def __init__(self, slot):
+		self.slot = slot
+		self.transform = vtkTransform()
+		self.transform.PostMultiply()
+		self.filter = vtkTransformPolyDataFilter()
+		self.filter.SetTransform(self.transform)
+		dummy = vtkPolyData()
+		dummy.SetPoints(vtkPoints())
+		self.filter.SetInputData(dummy)
+		self.mapper = vtkPolyDataMapper()
+		self.mapper.SetInputConnection(self.filter.GetOutputPort())
+		self.actor = vtkActor()
+		self.actor.SetMapper(self.mapper)
+		self.actor.VisibilityOff()
+		self.ship_type = 0
+
+	def update(self, game):
+		# Get ship type for this slot from game state.
+		ship_type = game.ship_types[self.slot]
+
+		if ship_type != self.ship_type:
+			# Ship type has changed.
+			if ship_type == 0 or ship_type & 0x80:
+				# Slot not in use, or is a planet.
+				self.actor.VisibilityOff()
+			else:
+				# Set correct model and make visible.
+				self.ship = game.ship_data[ship_type - 1]
+				self.filter.SetInputData(ship_model(self.ship))
+				self.actor.VisibilityOn()
+			self.ship_type = ship_type
+
+		# Set transform from ship state.
+		state = game.ship_states[self.slot]
+		matrix = np.empty((4,4))
+		matrix[0:3,0:3] = (state.rot[[2,1,0]] * np.array([-1, 1, 1])).T
+		matrix[0:3,3] = state.pos * np.array([-1, 1, 1])
+		matrix[3,0:3] = 0
+		matrix[3,3] = 1
+		self.transform.SetMatrix(matrix.reshape(16) / 200.0)
+		self.filter.Update()
