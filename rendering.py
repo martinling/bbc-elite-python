@@ -71,15 +71,21 @@ def ship_normals(ship):
 
 class ShipInstance(object):
 
+	dummy = vtkPolyData()
+	dummy.SetPoints(vtkPoints())
+
+	sphere = vtkSphereSource()
+	sphere.SetRadius(20000)
+	sphere.SetPhiResolution(18)
+	sphere.SetThetaResolution(36)
+
 	def __init__(self, slot):
 		self.slot = slot
 		self.transform = vtkTransform()
 		self.transform.PostMultiply()
 		self.filter = vtkTransformPolyDataFilter()
 		self.filter.SetTransform(self.transform)
-		dummy = vtkPolyData()
-		dummy.SetPoints(vtkPoints())
-		self.filter.SetInputData(dummy)
+		self.filter.SetInputData(self.dummy)
 		self.mapper = vtkPolyDataMapper()
 		self.mapper.SetInputConnection(self.filter.GetOutputPort())
 		self.actor = vtkActor()
@@ -93,9 +99,14 @@ class ShipInstance(object):
 
 		if ship_type != self.ship_type:
 			# Ship type has changed.
-			if ship_type == 0 or ship_type & 0x80:
-				# Slot not in use, or is a planet.
+			if ship_type == 0:
+				# Slot not in use.
+				self.filter.SetInputData(self.dummy)
 				self.actor.VisibilityOff()
+			elif ship_type & 0x80:
+				# Planet, render as a sphere.
+				self.filter.SetInputConnection(self.sphere.GetOutputPort())
+				self.actor.VisibilityOn()
 			else:
 				# Set correct model and make visible.
 				self.ship = game.ship_data[ship_type - 1]
