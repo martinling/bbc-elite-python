@@ -68,7 +68,7 @@ class ShipData(object):
 		if np.any(self.edges >= self.num_vertices):
 			raise ValueError
 		points = vtkPoints()
-		points.SetNumberOfPoints(self.num_vertices)
+		points.SetNumberOfPoints(self.num_vertices + self.num_faces * 2)
 		for i, vertex in enumerate(self.vertices):
 			points.SetPoint(i, vertex / 200.0)
 		lines = vtkCellArray()
@@ -78,9 +78,24 @@ class ShipData(object):
 				line.GetPointIds().SetId(i, vertex_id)
 			lines.InsertNextCell(line)
 		polygons = vtkCellArray()
-		for i, face in enumerate(face_data):
-			face_points = set([j for j in range(len((self.vertices)))
-				if i in self.vertex_faces[j]])
+		for i in range(self.num_faces):
+			face_vertices = np.unique([
+				v for v in range(self.num_vertices)
+					if v in self.vertex_faces[v]])
+			face_edges = np.array([self.edges[e]
+				for e in range(self.num_edges)
+				if i in self.edge_faces[e]])
+			face_edge_ends = np.unique(face_edges.flatten())
+			face_points = face_edge_ends
+			face_center = np.mean(self.vertices[face_points], axis=0)
+			a = self.num_vertices + 2*i
+			b = a + 1
+			points.SetPoint(a, face_center / 200.0)
+			points.SetPoint(b, (face_center + self.normals[i]) / 200.0)
+			line = vtkLine()
+			line.GetPointIds().SetId(0, a)
+			line.GetPointIds().SetId(1, b)
+			lines.InsertNextCell(line)
 			polygon = vtkPolygon()
 			ids = polygon.GetPointIds()
 			ids.SetNumberOfIds(len(face_points))
