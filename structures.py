@@ -31,6 +31,41 @@ def normals(b):
 	signs = b[:,0:1] & [0x80, 0x40, 0x20]
 	return magnitudes * np.where(signs, -1.0, 1.0)
 
+def point_cmp(a, b):
+	ax, ay = a
+	bx, by = b
+
+	if ax >= 0 and bx < 0:
+		return -1
+	elif ax < 0 and bx >= 0:
+		return 1
+	elif ax == 0 and bx == 0:
+		if ay >= 0 or by >= 0:
+			return cmp(by, ay)
+		else:
+			return cmp(ay, by)
+
+	det = ax*by - bx*ay
+	if det < 0:
+		return -1
+	elif det > 0:
+		return 1
+
+	d1 = ax*ax + ay*ay
+	d2 = bx*bx + by*by
+
+	return cmp(d2, d1)
+
+def polygon_order(points, center, normal):
+	x = points[0] - center
+	x /= np.linalg.norm(x)
+	z = normal / np.linalg.norm(normal)
+	y = np.cross(x,z)
+	px = np.dot(points, x)
+	py = np.dot(points, y)
+	p2d = np.array([px, py]).T
+	return sorted(range(len(points)), key=lambda i:p2d[i], cmp=point_cmp)
+
 class ShipData(object):
 
 	def __init__(self, ram, addr):
@@ -88,10 +123,12 @@ class ShipData(object):
 			face_edge_ends = np.unique(face_edges.flatten())
 			face_points = face_edge_ends
 			face_center = np.mean(self.vertices[face_points], axis=0)
+			face_normal = self.normals[i]
+			face_order = polygon_order(self.vertices[face_points], face_center, face_normal)
 			a = self.num_vertices + 2*i
 			b = a + 1
 			points.SetPoint(a, face_center)
-			points.SetPoint(b, face_center + self.normals[i])
+			points.SetPoint(b, face_center + face_normal)
 			line = vtkLine()
 			line.GetPointIds().SetId(0, a)
 			line.GetPointIds().SetId(1, b)
@@ -99,7 +136,7 @@ class ShipData(object):
 			polygon = vtkPolygon()
 			ids = polygon.GetPointIds()
 			ids.SetNumberOfIds(len(face_points))
-			for k, point in enumerate(face_points):
+			for k, point in enumerate(face_points[face_order]):
 				ids.SetId(k, point)
 			polygons.InsertNextCell(polygon)
 		self.poly = vtkPolyData()
