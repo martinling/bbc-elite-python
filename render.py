@@ -28,7 +28,7 @@ while True:
 	for instance in instances:
 		if game.ship_types[instance.slot] != 0:
 			state = game.ship_states[instance.slot]
-			print "Ship ", instance.slot
+			print "Ship ", instance.slot, "type", game.ship_types[instance.slot]
 			print "Position:", state.pos
 			print "Rotation:"
 			print state.rot
