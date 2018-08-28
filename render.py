@@ -32,7 +32,8 @@ while True:
 			print "Position:", state.pos
 			print "Rotation:"
 			print state.rot
-			print "State:", str.join(" ", ["%02X" % b for b in state.rest])
+			print "Speed", state.speed, "Accel", state.accel, "Roll", state.roll, "Pitch", state.pitch
+			print "Energy", state.energy, "Attack", hex(state.attack), "Behaviour", hex(state.behaviour), "Visiblity", hex(state.visibility)
 		instance.update(game)
 
 	window.Render()

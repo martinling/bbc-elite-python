@@ -72,7 +72,15 @@ class ShipState(object):
 	def __init__(self, state):
 		self.pos = int24(state[0:9])
 		self.rot = int16(state[9:27]).reshape(3,3) / float(0x6000)
-		self.rest = state[27:37]
+		self.speed = state[27]
+		self.accel = state[28]
+		self.roll = state[29]
+		self.pitch = state[30]
+		self.visibility = state[31]
+		self.attack = state[32]
+		self.heap = state[33:35].view(np.uint16)
+		self.energy = state[35]
+		self.behaviour = state[36]
 
 class Game(object):
 
