@@ -8,7 +8,7 @@ ol.init()
 game = Game()
 
 ol.perspective(60, 1, 1, 100)
-ol.translate3((0, 0, -100))
+ol.translate3((0, 0, -1000))
 
 while True:
 	# Read RAM from emulator
@@ -35,9 +35,8 @@ while True:
 		if not ship:
 			continue
 
-		for edge in ship.edges[:4]:
-			ol.begin(ol.LINESTRIP)
+		ol.begin(ol.LINESTRIP)
+		for edge in ship.edges:
 			for vertex in ship.vertices[edge]:
-				print(vertex)
 				ol.vertex3(vertex, ol.C_WHITE)
-			ol.end()
+		ol.end()
