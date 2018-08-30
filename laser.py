@@ -21,18 +21,17 @@ while True:
 	# Update game state
 	game.update(ram)
 
-	for ship_type, state, ship in zip(
-			game.ship_types,
-			game.ship_states,
-			game.ship_data):
+	for ship_type, state in zip(game.ship_types, game.ship_states):
 
-		if ship_type == 0:
+		if ship_type == 0 or ship_type & 0x80:
 			continue
 
 		print("Type:", ship_type)
 		print("Position:", state.pos)
 		print("Rotation:")
 		print(state.rot)
+
+		ship = game.ship_data[ship_type - 1]
 
 		if not ship:
 			continue
