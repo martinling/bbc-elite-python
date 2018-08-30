@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.spatial import ConvexHull
+from structures import *
 from vtk import *
 
 def normalise(vector):
@@ -14,21 +14,6 @@ def polygon_order(points, center, normal):
 	px = np.dot(points, x)
 	py = np.dot(points, y)
 	return ConvexHull(np.array([px, py]).T).vertices
-
-def ship_faces(ship):
-	for i in range(ship.num_faces):
-		normal = normalise(ship.normals[i])
-		edges = np.nonzero(np.any(ship.edge_faces == i, axis=1))[0]
-		if len(edges) > 3:
-			edge_vectors = np.diff(
-				ship.vertices[ship.edges[edges]], axis=1)[:,0]
-			plane_error = np.array([
-				np.abs(np.dot(normal, normalise(e)))
-					for e in edge_vectors])
-			edges = edges[plane_error < 0.1]
-		vertices = np.unique(ship.edges[edges].flatten())
-		center = np.mean(ship.vertices[vertices], axis=0)
-		yield vertices, center, normal
 
 def ship_model(ship):
 	points = vtkPoints()
