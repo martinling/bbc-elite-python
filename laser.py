@@ -41,6 +41,12 @@ while True:
 
 		ol.translate3(tuple(state.pos * [1, 1, -1]))
 
+		matrix = np.zeros((4,4))
+		matrix[0:3,0:3] = (state.rot[[2,1,0]] * np.array([-1, 1, 1])).T
+		matrix[3,3] = 1
+
+		ol.multMatrix3(matrix.reshape(16))
+
 		graph = networkx.Graph()
 		graph.add_nodes_from(range(ship.num_vertices))
 		graph.add_edges_from(ship.edges)
