@@ -8,8 +8,7 @@ ol.init()
 
 game = Game()
 
-ol.perspective(60, 1, 1, 100)
-ol.translate3((0, 0, -1000))
+ol.perspective(50, 1, 1, 100)
 
 def dedupe(a):
 	return np.concatenate([a[0],a[1:,1]])
@@ -41,7 +40,7 @@ while True:
 		ol.translate3(tuple(state.pos * [1, 1, -1]))
 
 		matrix = np.zeros((4,4))
-		matrix[0:3,0:3] = (state.rot[[2,1,0]] * np.array([-1, 1, 1])).T
+		matrix[0:3,0:3] = state.rot[[2,1,0]] * [1, 1, -1]
 		matrix[3,3] = 1
 
 		ol.multMatrix3(matrix.reshape(16))
