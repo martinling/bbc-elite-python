@@ -27,7 +27,10 @@ def ship_model(ship):
 			line.GetPointIds().SetId(i, vertex_id)
 		lines.InsertNextCell(line)
 	polygons = vtkCellArray()
-	for vertices, center, normal in ship_faces(ship):
+	for vertices, center, normal in zip(
+			ship.face_vertices,
+			ship.face_centers,
+			ship.face_normals):
 		order = polygon_order(ship.vertices[vertices], center, normal)
 		if len(order) == 0:
 			continue

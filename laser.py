@@ -47,7 +47,7 @@ while True:
 
 		position = state.pos * [1, 1, -1]
 		rotation = state.rot[[2,1,0]] * [1, 1, -1]
-		normals = ship.normals * [1, 1, -1]
+		normals = ship.face_normals * [1, 1, -1]
 
 		rotated_normals = np.dot(rotation, normals.T).T
 		visible_faces = np.nonzero(rotated_normals[:,2] < 0)[0]

@@ -34,21 +34,6 @@ def normals(b):
 def normalise(vector):
 	return vector / np.linalg.norm(vector)
 
-def ship_faces(ship):
-	for i in range(ship.num_faces):
-		normal = normalise(ship.normals[i])
-		edges = np.nonzero(np.any(ship.edge_faces == i, axis=1))[0]
-		if len(edges) > 3:
-			edge_vectors = np.diff(
-				ship.vertices[ship.edges[edges]], axis=1)[:,0]
-			plane_error = np.array([
-				np.abs(np.dot(normal, normalise(e)))
-					for e in edge_vectors])
-			edges = edges[plane_error < 0.1]
-		vertices = np.unique(ship.edges[edges].flatten())
-		center = np.mean(ship.vertices[vertices], axis=0)
-		yield vertices, center, normal
-
 class ShipData(object):
 
 	def __init__(self, ram, addr):
@@ -84,8 +69,21 @@ class ShipData(object):
 		if np.any(self.edges >= self.num_vertices):
 			raise ValueError
 		self.edge_faces = nibbles(edge_data[:,1:2])
-		self.normals = normals(face_data)
-		self.faces = np.array([v for v in ship_faces(self)])
+		self.face_normals = normals(face_data)
+		self.face_centers = np.empty((self.num_faces, 3))
+		self.face_vertices = []
+		for i in range(self.num_faces):
+			normal = normalise(self.face_normals[i])
+			edges = np.nonzero(np.any(self.edge_faces == i, axis=1))[0]
+			if len(edges) > 3:
+				edge_vectors = np.diff(
+					self.vertices[self.edges[edges]], axis=1)[:,0]
+				plane_error = np.array([
+					np.abs(np.dot(normal, normalise(e)))
+						for e in edge_vectors])
+				edges = edges[plane_error < 0.1]
+			self.face_vertices.append(np.unique(self.edges[edges].flatten()))
+			self.face_centers[i] = np.mean(self.vertices[self.face_vertices[i]], axis=0)
 
 class ShipState(object):
 
