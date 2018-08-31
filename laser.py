@@ -21,6 +21,8 @@ while True:
 	ol.loadIdentity3()
 	ol.loadIdentity()
 
+	ol.rect((-0.95, -0.95), (0.95, 0.95), ol.C_WHITE)
+
 	font = ol.getDefaultFont()
 	s = "Front View"
 	w = ol.getStringWidth(font, 0.1, s)
