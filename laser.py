@@ -45,13 +45,15 @@ while True:
 		if not ship:
 			continue
 
-		position = state.pos * [-1, -1, 1]
-		rotation = state.rot[[2,1,0]] * [-1, -1, 1]
-		normals = ship.face_normals * [-1, -1, 1]
-		centers = ship.face_centers * [-1, -1, 1]
+		position = state.pos * [1, 1, -1]
+		rotation = (state.rot * [1, 1, -1]).T
+		normals = ship.face_normals[:,[2,1,0]] * [1, 1, -1]
+		centers = ship.face_centers[:,[2,1,0]] * [1, 1, -1]
+		vertices = ship.vertices[:,[2,1,0]] * [1, 1, -1]
 
-		rotated_normals = np.dot(rotation.T, normals.T).T
-		rotated_centers = np.dot(rotation.T, normals.T).T + position
+		rotated_normals = np.dot(rotation, normals.T).T
+		rotated_centers = np.dot(rotation, normals.T).T + position
+		rotated_vertices = np.dot(rotation, vertices.T).T + position
 
 		dot_product = np.sum(rotated_normals * rotated_centers, axis=1)
 		visible_faces = np.nonzero(dot_product < 0)[0]
@@ -72,25 +74,13 @@ while True:
 		graph.add_nodes_from(range(ship.num_vertices))
 		graph.add_edges_from(ship.edges[visible_edges])
 
-		ol.pushMatrix3()
-
-		ol.translate3(tuple(position))
-
-		matrix = np.zeros((4,4))
-		matrix[0:3,0:3] = rotation
-		matrix[3,3] = 1
-
-		ol.multMatrix3(matrix.reshape(16))
-
 		chains = networkx.algorithms.chain_decomposition(graph)
 
 		for chain in chains:
 			vertices = dedupe(np.array(chain))
 			ol.begin(ol.LINESTRIP)
 			for vertex in vertices:
-				ol.vertex3(ship.vertices[vertex], ol.C_WHITE)
+				ol.vertex3(rotated_vertices[vertex], ol.C_WHITE)
 			ol.end()
-
-		ol.popMatrix3()
 
 	ol.renderFrame(60)
