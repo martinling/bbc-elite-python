@@ -8,6 +8,8 @@ ol.init()
 
 game = Game()
 
+old_dust = None
+
 def dedupe(a):
 	return np.concatenate([a[0],a[1:,1]])
 
@@ -35,6 +37,16 @@ while True:
 	ol.line((-0.1, 0),(-0.2, 0), ol.C_WHITE)
 
 	ol.perspective(50, 1, 1, 100)
+
+	# Draw dust
+	if old_dust is not None:
+		for old, new in zip(old_dust, game.dust_positions):
+			ol.begin(ol.LINESTRIP)
+			ol.vertex3(old * [1,1,-1], ol.C_WHITE)
+			ol.vertex3(new * [1,1,-1], ol.C_WHITE)
+			ol.end()
+		
+	old_dust = game.dust_positions
 
 	for ship_type, state in zip(game.ship_types, game.ship_states):
 
@@ -87,7 +99,5 @@ while True:
 			for vertex in chain_vertices:
 				ol.vertex3(rotated_vertices[vertex], ol.C_WHITE)
 			ol.end()
-
-	print(game.dust_positions)
 
 	ol.renderFrame(60)
