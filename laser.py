@@ -58,13 +58,6 @@ while True:
 		dot_product = np.sum(rotated_normals * rotated_centers, axis=1)
 		visible_faces = np.nonzero(dot_product < 0)[0]
 
-		for i in range(ship.num_faces):
-			color = ol.C_GREEN if i in visible_faces else ol.C_RED
-			ol.begin(ol.LINESTRIP)
-			ol.vertex3(rotated_centers[i], color)
-			ol.vertex3(rotated_centers[i] + rotated_normals[i], color)
-			ol.end()
-
 		first_side_visible = np.any(ship.edge_faces[:,0:1] == visible_faces, axis=1)
 		other_side_visible = np.any(ship.edge_faces[:,1:2] == visible_faces, axis=1)
 
