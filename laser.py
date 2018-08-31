@@ -8,8 +8,6 @@ ol.init()
 
 game = Game()
 
-ol.perspective(50, 1, 1, 100)
-
 def dedupe(a):
 	return np.concatenate([a[0],a[1:,1]])
 
@@ -19,6 +17,10 @@ while True:
 
 	# Update game state
 	game.update(ram)
+
+	ol.loadIdentity3()
+
+	ol.perspective(50, 1, 1, 100)
 
 	for ship_type, state in zip(game.ship_types, game.ship_states):
 
