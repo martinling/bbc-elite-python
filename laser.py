@@ -88,4 +88,6 @@ while True:
 				ol.vertex3(rotated_vertices[vertex], ol.C_WHITE)
 			ol.end()
 
+	print(game.dust_positions)
+
 	ol.renderFrame(60)

@@ -13,6 +13,11 @@ def int16(x):
 	sign = np.where(b[:,1] & 0x80, -1, 1)
 	return sign * magnitude
 
+def int8(x):
+	magnitude = x & 0x7F
+	sign = np.where(x & 0x80, -1, 1)
+	return sign * magnitude
+
 def nibbles(b):
 	shape = list(b.shape)
 	shape[-1] *= 2
@@ -106,6 +111,8 @@ class Game(object):
 		self.ship_data = [None] * 31
 		self.ship_types = [None] * 13
 		self.ship_states = [None] * 13
+		self.num_dust = None
+		self.dust_positions = None
 
 	def update(self, ram):
 		# Get addresses where ship data is loaded
@@ -137,3 +144,10 @@ class Game(object):
 		# Read ship states
 		self.ship_states = [ShipState(state)
 			for state in ram[0x900:0x900 + 13*37].reshape(13,37)]
+
+		# Read dust count and positions
+		self.num_dust = ram[0x3C3]
+		self.dust_positions = np.empty((self.num_dust, 3))
+		self.dust_positions[:,0] = int8(ram[0xF5D:0xF5D+self.num_dust])
+		self.dust_positions[:,1] = int8(ram[0xF83:0xF83+self.num_dust])
+		self.dust_positions[:,2] = ram[0xFA9:0xFA9+self.num_dust]
