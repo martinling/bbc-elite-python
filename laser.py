@@ -45,6 +45,12 @@ while True:
 		if not ship:
 			continue
 
+		if state.pos[2] < 0:
+			continue
+
+		if np.any(np.abs(state.pos[0:2]) > state.pos[2]):
+			continue
+
 		position = state.pos * [1, 1, -1]
 		rotation = (state.rot * [1, 1, -1]).T
 		normals = ship.face_normals[:,[2,1,0]] * [1, 1, -1]
