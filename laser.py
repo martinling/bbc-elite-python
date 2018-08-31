@@ -28,6 +28,12 @@ while True:
 	w = ol.getStringWidth(font, 0.1, s)
 	ol.drawString(font, (-w/2,0.85), 0.1, ol.C_WHITE, s)
 
+	# Draw crosshair
+	ol.line((0,  0.1),(0,  0.2), ol.C_WHITE)
+	ol.line((0, -0.1),(0, -0.2), ol.C_WHITE)
+	ol.line(( 0.1, 0),( 0.2, 0), ol.C_WHITE)
+	ol.line((-0.1, 0),(-0.2, 0), ol.C_WHITE)
+
 	ol.perspective(50, 1, 1, 100)
 
 	for ship_type, state in zip(game.ship_types, game.ship_states):
