@@ -45,19 +45,31 @@ while True:
 		if not ship:
 			continue
 
-		ol.pushMatrix3()
+		position = state.pos * [1, 1, -1]
+		rotation = state.rot[[2,1,0]] * [1, 1, -1]
+		normals = ship.normals * [1, 1, -1]
 
-		ol.translate3(tuple(state.pos * [1, 1, -1]))
+		rotated_normals = np.dot(rotation, normals.T).T
+		visible_faces = np.nonzero(rotated_normals[:,2] < 0)[0]
 
-		matrix = np.zeros((4,4))
-		matrix[0:3,0:3] = state.rot[[2,1,0]] * [1, 1, -1]
-		matrix[3,3] = 1
+		first_end_visible = np.any(ship.edge_faces[:,0:1] == visible_faces, axis=1)
+		other_end_visible = np.any(ship.edge_faces[:,1:2] == visible_faces, axis=1)
 
-		ol.multMatrix3(matrix.reshape(16))
+		visible_edges = np.nonzero(first_end_visible | other_end_visible)[0]
 
 		graph = networkx.Graph()
 		graph.add_nodes_from(range(ship.num_vertices))
-		graph.add_edges_from(ship.edges)
+		graph.add_edges_from(ship.edges[visible_edges])
+
+		ol.pushMatrix3()
+
+		ol.translate3(tuple(position))
+
+		matrix = np.zeros((4,4))
+		matrix[0:3,0:3] = rotation
+		matrix[3,3] = 1
+
+		ol.multMatrix3(matrix.reshape(16))
 
 		chains = networkx.algorithms.chain_decomposition(graph)
 
