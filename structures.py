@@ -151,3 +151,6 @@ class Game(object):
 		self.dust_positions[:,0] = int8(ram[0xF5D:0xF5D+self.num_dust])
 		self.dust_positions[:,1] = int8(ram[0xF83:0xF83+self.num_dust])
 		self.dust_positions[:,2] = ram[0xFA9:0xFA9+self.num_dust]
+
+		# Read player speed
+		self.speed = ram[0x7D]
