@@ -19,6 +19,12 @@ while True:
 	game.update(ram)
 
 	ol.loadIdentity3()
+	ol.loadIdentity()
+
+	font = ol.getDefaultFont()
+	s = "Front View"
+	w = ol.getStringWidth(font, 0.1, s)
+	ol.drawString(font, (-w/2,0.85), 0.1, ol.C_WHITE, s)
 
 	ol.perspective(50, 1, 1, 100)
 
