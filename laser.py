@@ -45,17 +45,28 @@ while True:
 		if not ship:
 			continue
 
-		position = state.pos * [1, 1, -1]
-		rotation = state.rot[[2,1,0]] * [1, 1, -1]
-		normals = ship.face_normals * [1, 1, -1]
+		position = state.pos * [-1, -1, 1]
+		rotation = state.rot[[2,1,0]] * [-1, -1, 1]
+		normals = ship.face_normals * [-1, -1, 1]
+		centers = ship.face_centers * [-1, -1, 1]
 
-		rotated_normals = np.dot(rotation, normals.T).T
-		visible_faces = np.nonzero(rotated_normals[:,2] < 0)[0]
+		rotated_normals = np.dot(rotation.T, normals.T).T
+		rotated_centers = np.dot(rotation.T, normals.T).T + position
 
-		first_end_visible = np.any(ship.edge_faces[:,0:1] == visible_faces, axis=1)
-		other_end_visible = np.any(ship.edge_faces[:,1:2] == visible_faces, axis=1)
+		dot_product = np.sum(rotated_normals * rotated_centers, axis=1)
+		visible_faces = np.nonzero(dot_product < 0)[0]
 
-		visible_edges = np.nonzero(first_end_visible | other_end_visible)[0]
+		for i in range(ship.num_faces):
+			color = ol.C_GREEN if i in visible_faces else ol.C_RED
+			ol.begin(ol.LINESTRIP)
+			ol.vertex3(rotated_centers[i], color)
+			ol.vertex3(rotated_centers[i] + rotated_normals[i], color)
+			ol.end()
+
+		first_side_visible = np.any(ship.edge_faces[:,0:1] == visible_faces, axis=1)
+		other_side_visible = np.any(ship.edge_faces[:,1:2] == visible_faces, axis=1)
+
+		visible_edges = np.nonzero(first_side_visible | other_side_visible)[0]
 
 		graph = networkx.Graph()
 		graph.add_nodes_from(range(ship.num_vertices))
