@@ -70,9 +70,9 @@ while True:
 		chains = networkx.algorithms.chain_decomposition(graph)
 
 		for chain in chains:
-			vertices = dedupe(np.array(chain))
+			chain_vertices = dedupe(np.array(chain))
 			ol.begin(ol.LINESTRIP)
-			for vertex in vertices:
+			for vertex in chain_vertices:
 				ol.vertex3(rotated_vertices[vertex], ol.C_WHITE)
 			ol.end()
 
