@@ -138,6 +138,14 @@ def lines_2d(points, lines):
 	actor.SetMapper(mapper)
 	return actor
 
+def lines_3d(points, lines):
+	poly = make_lines(points_3d, lines)
+	mapper = vtkPolyDataMapper()
+	mapper.SetInputData(poly)
+	actor = vtkActor()
+	actor.SetMapper(mapper)
+	return actor
+
 crosshair_points = np.array([
 	[0.5, 0.55], [0.5, 0.6],
 	[0.5, 0.45], [0.5, 0.4],
