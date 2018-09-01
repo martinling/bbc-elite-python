@@ -15,17 +15,24 @@ def polygon_order(points, center, normal):
 	py = np.dot(points, y)
 	return ConvexHull(np.array([px, py]).T).vertices
 
+def make_lines(points, lines):
+	vpoints = vtkPoints()
+	vpoints.SetNumberOfPoints(len(points))
+	for i, point in enumerate(points):
+		vpoints.SetPoint(i, point)
+	vlines = vtkCellArray()
+	for start, end in lines:
+		vline = vtkLine()
+		vline.GetPointIds().SetId(0, start)
+		vline.GetPointIds().SetId(1, end)
+		vlines.InsertNextCell(vline)
+	poly = vtkPolyData()
+	poly.SetPoints(vpoints)
+	poly.SetLines(vlines)
+	return poly
+
 def ship_model(ship):
-	points = vtkPoints()
-	points.SetNumberOfPoints(ship.num_vertices)
-	for i, vertex in enumerate(ship.vertices):
-		points.SetPoint(i, vertex)
-	lines = vtkCellArray()
-	for edge in ship.edges:
-		line = vtkLine()
-		for i, vertex_id in enumerate(edge):
-			line.GetPointIds().SetId(i, vertex_id)
-		lines.InsertNextCell(line)
+	model = make_lines(ship.vertices, ship.edges)
 	polygons = vtkCellArray()
 	for vertices, center, normal in zip(
 			ship.face_vertices,
@@ -40,9 +47,6 @@ def ship_model(ship):
 		for i, point in enumerate(vertices[order]):
 			ids.SetId(i, point)
 		polygons.InsertNextCell(polygon)
-	model = vtkPolyData()
-	model.SetPoints(points)
-	model.SetLines(lines)
 	model.SetPolys(polygons)
 	return model
 
@@ -121,25 +125,15 @@ class ShipInstance(object):
 		self.filter.Update()
 
 def lines_2d(points, lines):
-	vpoints = vtkPoints()
-	vpoints.SetNumberOfPoints(len(points))
-	for i, (x, y) in enumerate(points):
-		vpoints.SetPoint(i, x, y, 0)
-	vlines = vtkCellArray()
-	for start, end in lines:
-		vline = vtkLine()
-		vline.GetPointIds().SetId(0, start)
-		vline.GetPointIds().SetId(1, end)
-		vlines.InsertNextCell(vline)
-	poly = vtkPolyData()
-	poly.SetPoints(vpoints)
-	poly.SetLines(vlines)
+	points_3d = np.empty((len(points), 3))
+	points_3d[:,0:2] = points
+	points_3d[:,2] = 0
+	poly = make_lines(points_3d, lines)
 	coord = vtkCoordinate()
 	coord.SetCoordinateSystemToNormalizedViewport()
 	mapper = vtkPolyDataMapper2D()
 	mapper.SetTransformCoordinate(coord)
 	mapper.SetInputData(poly)
-	mapper.Update()
 	actor = vtkActor2D()
 	actor.SetMapper(mapper)
 	return actor
