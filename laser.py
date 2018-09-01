@@ -34,6 +34,13 @@ while True:
 	ol.line(( 0.1, 0),( 0.2, 0), ol.C_WHITE)
 	ol.line((-0.1, 0),(-0.2, 0), ol.C_WHITE)
 
+	# Draw lasers
+	if game.laser_firing:
+		ol.line((-0.5, -1),(0, 0), ol.C_WHITE)
+		ol.line((-0.6, -1),(0, 0), ol.C_WHITE)
+		ol.line(( 0.5, -1),(0, 0), ol.C_WHITE)
+		ol.line(( 0.6, -1),(0, 0), ol.C_WHITE)
+
 	ol.perspective(50, 1, 1, 100)
 
 	# Draw dust

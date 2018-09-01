@@ -154,3 +154,6 @@ class Game(object):
 
 		# Read player speed
 		self.speed = ram[0x7D]
+
+		# Read laser key
+		self.laser_firing = bool(ram[0x307])
