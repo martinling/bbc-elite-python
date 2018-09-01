@@ -157,3 +157,7 @@ class Game(object):
 
 		# Read laser key
 		self.laser_firing = bool(ram[0x307])
+
+		# Read pitch and roll
+		self.roll_rate = int8(ram[0x8D])
+		self.pitch_rate = int8(ram[0x2A])
