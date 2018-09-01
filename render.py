@@ -12,6 +12,9 @@ renderer.SetActiveCamera(camera)
 window = vtkRenderWindow()
 window.AddRenderer(renderer)
 
+renderer.AddActor(lines_2d(crosshair_points, crosshair_lines))
+renderer.AddActor(lines_2d(border_points, border_lines))
+
 instances = [ShipInstance(i) for i in range(13)]
 for instance in instances:
 	renderer.AddActor(instance.actor)

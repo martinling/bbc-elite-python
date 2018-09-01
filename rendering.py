@@ -119,3 +119,45 @@ class ShipInstance(object):
 		matrix[3,3] = 1
 		self.transform.SetMatrix(matrix.reshape(16) / 200.0)
 		self.filter.Update()
+
+def lines_2d(points, lines):
+	vpoints = vtkPoints()
+	vpoints.SetNumberOfPoints(len(points))
+	for i, (x, y) in enumerate(points):
+		vpoints.SetPoint(i, x, y, 0)
+	vlines = vtkCellArray()
+	for start, end in lines:
+		vline = vtkLine()
+		vline.GetPointIds().SetId(0, start)
+		vline.GetPointIds().SetId(1, end)
+		vlines.InsertNextCell(vline)
+	poly = vtkPolyData()
+	poly.SetPoints(vpoints)
+	poly.SetLines(vlines)
+	coord = vtkCoordinate()
+	coord.SetCoordinateSystemToNormalizedViewport()
+	mapper = vtkPolyDataMapper2D()
+	mapper.SetTransformCoordinate(coord)
+	mapper.SetInputData(poly)
+	mapper.Update()
+	actor = vtkActor2D()
+	actor.SetMapper(mapper)
+	return actor
+
+crosshair_points = np.array([
+	[0.5, 0.55], [0.5, 0.6],
+	[0.5, 0.45], [0.5, 0.4],
+	[0.55, 0.5], [0.6, 0.5],
+	[0.45, 0.5], [0.4, 0.5]])
+
+crosshair_lines = np.array([
+	[0, 1], [2, 3],
+	[4, 5], [6, 7]])
+
+border_points = np.array([
+	[0.025, 0.025], [0.025, 0.975],
+	[0.975, 0.975], [0.975, 0.025]])
+
+border_lines = np.array([
+	[0, 1], [1, 2],
+	[2, 3], [3, 0]])
