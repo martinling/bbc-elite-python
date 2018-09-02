@@ -48,7 +48,7 @@ while True:
 		position = position * [1, 1, -1]
 		ol.begin(ol.LINESTRIP)
 		ol.vertex3(position, ol.C_WHITE)
-		ol.vertex3(position - [0, 0, game.speed], ol.C_WHITE)
+		ol.vertex3(position - [0, -game.pitch_rate, game.speed], ol.C_WHITE)
 		ol.end()
 
 	for ship_type, state in zip(game.ship_types, game.ship_states):
