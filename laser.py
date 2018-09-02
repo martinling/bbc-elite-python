@@ -11,6 +11,15 @@ game = Game()
 def dedupe(a):
 	return np.concatenate([a[0],a[1:,1]])
 
+def in_view(pos):
+	ndim = pos.ndim
+	if ndim == 1:
+		pos = np.array([pos])
+	result = (pos[:,2] > 0) & np.all(np.abs(pos[:,0:2]) < pos[:,2])
+	if ndim == 1:
+		result = result[0]
+	return result
+
 while True:
 	# Read RAM from emulator
 	ram = np.frombuffer(sys.stdin.buffer.read(0x10000), dtype=np.uint8)
@@ -66,10 +75,7 @@ while True:
 		if not ship:
 			continue
 
-		if state.pos[2] < 0:
-			continue
-
-		if np.any(np.abs(state.pos[0:2]) > state.pos[2]):
+		if not in_view(state.pos):
 			continue
 
 		position = state.pos * [1, 1, -1]
