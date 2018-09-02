@@ -15,7 +15,7 @@ def in_view(pos):
 	ndim = pos.ndim
 	if ndim == 1:
 		pos = np.array([pos])
-	result = (pos[:,2] < 0) & np.all(np.abs(pos[:,0:2]) < -pos[:,2])
+	result = (pos[:,2] < 0) & np.all(np.abs(pos[:,0:2]) < -pos[:,2:3], axis=1)
 	if ndim == 1:
 		result = result[0]
 	return result
@@ -87,14 +87,24 @@ while True:
 		rotated_normals = np.dot(rotation, normals.T).T
 		rotated_centers = np.dot(rotation, normals.T).T + position
 		rotated_vertices = np.dot(rotation, vertices.T).T + position
+		visible_vertices = np.nonzero(in_view(rotated_vertices))[0]
 
 		dot_product = np.sum(rotated_normals * rotated_centers, axis=1)
 		visible_faces = np.nonzero(dot_product < 0)[0]
 
+		first_end_visible = np.any(ship.edges[:,0:1] == visible_vertices, axis=1)
+		other_end_visible = np.any(ship.edges[:,1:2] == visible_vertices, axis=1)
+
+		both_ends_visible = first_end_visible & other_end_visible
+
 		first_side_visible = np.any(ship.edge_faces[:,0:1] == visible_faces, axis=1)
 		other_side_visible = np.any(ship.edge_faces[:,1:2] == visible_faces, axis=1)
 
-		visible_edges = np.nonzero(first_side_visible | other_side_visible)[0]
+		one_side_visible = first_side_visible | other_side_visible
+
+		edge_visible = both_ends_visible & one_side_visible
+
+		visible_edges = np.nonzero(edge_visible)[0]
 
 		graph = networkx.Graph()
 		graph.add_nodes_from(range(ship.num_vertices))
