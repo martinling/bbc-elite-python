@@ -15,7 +15,7 @@ def in_view(pos):
 	ndim = pos.ndim
 	if ndim == 1:
 		pos = np.array([pos])
-	result = (pos[:,2] > 0) & np.all(np.abs(pos[:,0:2]) < pos[:,2])
+	result = (pos[:,2] < 0) & np.all(np.abs(pos[:,0:2]) < -pos[:,2])
 	if ndim == 1:
 		result = result[0]
 	return result
@@ -54,10 +54,10 @@ while True:
 
 	# Draw dust
 	for position in game.dust_positions:
-		position = position * [1, 1, -1]
+		velocity = [0, -game.pitch_rate, game.speed]
 		ol.begin(ol.LINESTRIP)
 		ol.vertex3(position, ol.C_WHITE)
-		ol.vertex3(position - [0, -game.pitch_rate, game.speed], ol.C_WHITE)
+		ol.vertex3(position - velocity, ol.C_WHITE)
 		ol.end()
 
 	for ship_type, state in zip(game.ship_types, game.ship_states):
@@ -78,11 +78,11 @@ while True:
 		if not in_view(state.pos):
 			continue
 
-		position = state.pos * [1, 1, -1]
-		rotation = (state.rot * [1, 1, -1]).T
-		normals = ship.face_normals[:,[2,1,0]] * [1, 1, -1]
-		centers = ship.face_centers[:,[2,1,0]] * [1, 1, -1]
-		vertices = ship.vertices[:,[2,1,0]] * [1, 1, -1]
+		position = state.pos
+		rotation = state.rot
+		normals = ship.face_normals
+		centers = ship.face_centers
+		vertices = ship.vertices
 
 		rotated_normals = np.dot(rotation, normals.T).T
 		rotated_centers = np.dot(rotation, normals.T).T + position

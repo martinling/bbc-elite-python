@@ -117,8 +117,8 @@ class ShipInstance(object):
 		# Set transform from ship state.
 		state = game.ship_states[self.slot]
 		matrix = np.empty((4,4))
-		matrix[0:3,0:3] = (state.rot[[2,1,0]] * np.array([-1, 1, 1])).T
-		matrix[0:3,3] = state.pos * np.array([-1, 1, 1])
+		matrix[0:3,0:3] = state.rot
+		matrix[0:3,3] = state.pos
 		matrix[3,0:3] = 0
 		matrix[3,3] = 1
 		self.transform.SetMatrix(matrix.reshape(16) / 200.0)

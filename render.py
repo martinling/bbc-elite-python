@@ -6,7 +6,7 @@ from rendering import *
 
 camera = vtkCamera()
 camera.SetPosition(0, 0, 0)
-camera.SetFocalPoint(0, 0, 100)
+camera.SetFocalPoint(0, 0, -100)
 renderer = vtkRenderer()
 renderer.SetActiveCamera(camera)
 window = vtkRenderWindow()
@@ -26,7 +26,7 @@ def make_dust(game):
 	points.SetNumberOfPoints(game.num_dust * 2)
 	lines = vtkCellArray()
 	positions = (game.dust_positions) / 200.0
-	speed = [0, 0, game.speed / 200.0]
+	speed = [0, 0, -game.speed / 200.0]
 	for i, speck in enumerate(positions):
 		points.SetPoint(2*i, speck)
 		points.SetPoint(2*i+1, speck - speed)

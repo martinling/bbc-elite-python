@@ -68,14 +68,14 @@ class ShipData(object):
 		edge_data = data[:4*self.num_edges].reshape(-1,4)
 		data = data[edge_data.nbytes:]
 		face_data = data[:4*self.num_faces].reshape(-1,4)
-		self.vertices = vertices(vertex_data)
+		self.vertices = vertices(vertex_data)[:,::-1] * [1, 1, -1]
 		self.vertex_faces = nibbles(vertex_data[:,4:6])
 		self.edges = edge_data[:,2:4] // 4
 		if np.any(self.edges >= self.num_vertices):
 			raise ValueError
 		self.edge_faces = nibbles(edge_data[:,1:2])
-		self.face_normals = normals(face_data)
-		self.face_centers = np.empty((self.num_faces, 3))
+		self.face_normals = normals(face_data)[:,::-1] * [1, 1, -1]
+		self.face_centers = np.empty((self.num_faces, 3))[:,::-1] * [1, 1, -1]
 		self.face_vertices = []
 		for i in range(self.num_faces):
 			normal = normalise(self.face_normals[i])
@@ -93,8 +93,8 @@ class ShipData(object):
 class ShipState(object):
 
 	def __init__(self, state):
-		self.pos = int24(state[0:9])
-		self.rot = int16(state[9:27]).reshape(3,3) / float(0x6000)
+		self.pos = int24(state[0:9]) * [1,1,-1]
+		self.rot = (int16(state[9:27]).reshape(3,3) / float(0x6000) * [1,1,-1]).T
 		self.speed = state[27]
 		self.accel = state[28]
 		self.roll = state[29]
@@ -150,10 +150,10 @@ class Game(object):
 		self.dust_positions = np.empty((self.num_dust, 3))
 		self.dust_positions[:,0] = int8(ram[0xF5D:0xF5D+self.num_dust])
 		self.dust_positions[:,1] = int8(ram[0xF83:0xF83+self.num_dust])
-		self.dust_positions[:,2] = ram[0xFA9:0xFA9+self.num_dust]
+		self.dust_positions[:,2] = -ram[0xFA9:0xFA9+self.num_dust].astype(int)
 
 		# Read player speed
-		self.speed = ram[0x7D]
+		self.speed = int(ram[0x7D])
 
 		# Read laser key
 		self.laser_firing = bool(ram[0x307])
