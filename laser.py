@@ -3,6 +3,7 @@ import numpy as np
 from structures import *
 import pylase as ol
 import networkx
+import socket
 
 ol.init()
 
@@ -20,9 +21,24 @@ def in_view(pos):
 		result = result[0]
 	return result
 
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.settimeout(None)
+sock.bind(("localhost", 31337))
+sock.listen()
+
+connection, addr = sock.accept()
+
 while True:
 	# Read RAM from emulator
-	ram = np.frombuffer(sys.stdin.buffer.read(0x10000), dtype=np.uint8)
+	size = 0x10000
+	received = 0
+	data = bytes()
+	while received < size:
+		block = connection.recv(size - received)
+		data += block
+		received += len(block)
+
+	ram = np.frombuffer(data, dtype=np.uint8)
 
 	# Update game state
 	game.update(ram)
