@@ -1,8 +1,9 @@
-import sys
-import numpy as np
-from vtk import *
 from structures import *
 from rendering import *
+from server import *
+from vtk import *
+import numpy as np
+import sys
 
 camera = vtkCamera()
 camera.SetPosition(0, 0, 0)
@@ -18,8 +19,6 @@ renderer.AddActor(lines_2d(border_points, border_lines))
 instances = [ShipInstance(i) for i in range(13)]
 for instance in instances:
 	renderer.AddActor(instance.actor)
-
-game = Game()
 
 def make_dust(game):
 	points = vtkPoints()
@@ -44,9 +43,14 @@ dust_actor = vtkActor()
 dust_actor.SetMapper(dust_mapper)
 renderer.AddActor(dust_actor)
 
+game = Game()
+server = Server()
+
+client = server.accept()
+
 while True:
 	# Read RAM from emulator
-	ram = np.frombuffer(sys.stdin.buffer.read(0x10000), dtype=np.uint8)
+	ram = client.update()
 
 	# Update game state
 	game.update(ram)
