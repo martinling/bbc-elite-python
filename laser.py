@@ -1,13 +1,15 @@
-import sys
-import numpy as np
 from structures import *
+from server import *
+import numpy as np
 import pylase as ol
 import networkx
-import socket
+import sys
 
 ol.init()
 
 game = Game()
+
+server = Server()
 
 def dedupe(a):
 	return np.concatenate([a[0],a[1:,1]])
@@ -21,26 +23,12 @@ def in_view(pos):
 		result = result[0]
 	return result
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.settimeout(None)
-sock.bind(("localhost", 31337))
-sock.listen()
-
-connection, addr = sock.accept()
+client = server.accept()
 
 while True:
-	# Read RAM from emulator
-	size = 0x10000
-	received = 0
-	data = bytes()
-	while received < size:
-		block = connection.recv(size - received)
-		data += block
-		received += len(block)
-
-	ram = np.frombuffer(data, dtype=np.uint8)
 
 	# Update game state
+	ram = client.update()
 	game.update(ram)
 
 	ol.loadIdentity3()
