@@ -86,9 +86,10 @@ class ShipInstance(object):
 		self.mapper.SetInputConnection(self.filter.GetOutputPort())
 		self.actor = vtkActor()
 		prop = self.actor.GetProperty()
-		prop.SetColor(0,0,0)
+		prop.SetColor(0.4,0.4,0.4)
 		prop.EdgeVisibilityOn()
 		prop.SetEdgeColor(1,1,1)
+		prop.SetLineWidth(3)
 		self.actor.SetMapper(self.mapper)
 		self.actor.VisibilityOff()
 		self.ship_type = 0
