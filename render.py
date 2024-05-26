@@ -50,7 +50,7 @@ client = server.accept()
 
 while True:
 	# Read RAM from emulator
-	ram = client.update()
+	ram = client.update_blocking()
 
 	# Update game state
 	game.update(ram)

@@ -1,3 +1,4 @@
+from select import select
 import socket
 import numpy as np
 
@@ -5,17 +6,30 @@ class Client(object):
 
 	def __init__(self, sock):
 		self.sock = sock
+		sock.setblocking(False)
+		self.size = 0x10000
+		self.data = np.empty(self.size, dtype=np.uint8)
+		self.received = 0
 
-	def update(self):
-		# Read RAM from emulator
-		size = 0x10000
-		received = 0
-		data = bytes()
-		while received < size:
-			block = self.sock.recv(size - received)
-			data += block
-			received += len(block)
-		return np.frombuffer(data, dtype=np.uint8)
+	def update_nonblocking(self):
+		try:
+			length = self.sock.recv_into(self.data[self.received:])
+		except BlockingIOError:
+			return None
+		if length == 0:
+			return None
+		self.received += length
+		if self.received == self.size:
+			self.received = 0
+			return self.data
+		else:
+			return None
+
+	def update_blocking(self):
+		while True:
+			readable, _, _ = select([self.sock], [], [])
+			if (ram := self.update_nonblocking()) is not None:
+				return ram
 
 class Server(object):
 

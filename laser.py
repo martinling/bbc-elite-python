@@ -28,7 +28,7 @@ client = server.accept()
 while True:
 
 	# Update game state
-	ram = client.update()
+	ram = client.update_blocking()
 	game.update(ram)
 
 	ol.loadIdentity3()
