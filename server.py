@@ -19,11 +19,11 @@ class Client(object):
 
 class Server(object):
 
-	def __init__(self, address="localhost", port=31337):
+	def __init__(self, address="0.0.0.0", port=31337):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.settimeout(None)
-		self.sock.bind(("localhost", 31337))
+		self.sock.bind((address, port))
 		self.sock.listen(1)
 
 
