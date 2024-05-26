@@ -1,5 +1,5 @@
 from structures import *
-from server import *
+from source import *
 import numpy as np
 import pylase as ol
 import networkx
@@ -8,8 +8,7 @@ import sys
 ol.init()
 
 game = Game()
-
-server = Server()
+source = Source()
 
 def dedupe(a):
 	return np.concatenate([a[0],a[1:,1]])
@@ -23,12 +22,10 @@ def in_view(pos):
 		result = result[0]
 	return result
 
-client = server.accept()
-
 while True:
 
 	# Update game state
-	ram = client.update_blocking()
+	ram = source.update_blocking()
 	game.update(ram)
 
 	ol.loadIdentity3()

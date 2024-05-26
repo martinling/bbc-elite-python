@@ -1,6 +1,6 @@
 from structures import *
 from rendering import *
-from server import *
+from source import *
 from vtk import *
 import numpy as np
 import sys
@@ -44,13 +44,11 @@ dust_actor.SetMapper(dust_mapper)
 renderer.AddActor(dust_actor)
 
 game = Game()
-server = Server()
-
-client = server.accept()
+source = Source()
 
 while True:
 	# Read RAM from emulator
-	ram = client.update_blocking()
+	ram = source.update_blocking()
 
 	# Update game state
 	game.update(ram)

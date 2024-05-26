@@ -2,13 +2,11 @@ import numpy as np
 from vtk import *
 from structures import *
 from rendering import *
-from server import *
+from source import *
 
-server = Server()
-client = server.accept()
-
+source = Source()
 game = Game()
-ram = client.update_blocking()
+ram = source.update_blocking()
 game.update(ram)
 
 renderer = vtkOpenVRRenderer()
@@ -30,7 +28,7 @@ renderWindowInteractor.Initialize()
 while True:
     renderWindowInteractor.DoOneEvent(renderWindow, renderer)
 
-    if (ram := client.update_nonblocking()) is not None:
+    if (ram := source.update_nonblocking()) is not None:
         game.update(ram)
         for instance in instances:
             if game.ship_types[instance.slot] != 0:

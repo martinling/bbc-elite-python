@@ -1,8 +1,10 @@
-import sys, socket
+import zmq
+import sys
 
-sock = socket.create_connection((sys.argv[1], 31337))
-sock.settimeout(None)
+ctx = zmq.Context()
+game_socket = ctx.socket(zmq.PUB)
+game_socket.bind('tcp://*:31337')
 
 while True:
 	ram = sys.stdin.buffer.read(0x10000)
-	sock.sendall(ram)
+	game_socket.send(ram)
