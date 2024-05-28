@@ -24,7 +24,7 @@ def make_dust(game):
 	points = vtkPoints()
 	points.SetNumberOfPoints(game.num_dust * 2)
 	lines = vtkCellArray()
-	positions = (game.dust_positions) / 200.0
+	positions = (game.dust_positions) / 50.0
 	speed = [0, 0, -game.speed / 200.0]
 	for i, speck in enumerate(positions):
 		points.SetPoint(2*i, speck)

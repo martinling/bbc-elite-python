@@ -124,7 +124,7 @@ class ShipInstance(object):
 		matrix[0:3,3] = state.pos
 		matrix[3,0:3] = 0
 		matrix[3,3] = 1
-		self.transform.SetMatrix(matrix.reshape(16) / 200.0)
+		self.transform.SetMatrix(matrix.reshape(16) / 50.0)
 		self.filter.Update()
 
 def lines_2d(points, lines):
