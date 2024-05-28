@@ -26,6 +26,12 @@ renderer.AddActor(lines_3d(crosshair_3d, crosshair_lines))
 instances = [ShipInstance(i) for i in range(13)]
 for instance in instances:
     renderer.AddActor(instance.actor)
+
+dust_mapper = vtkPolyDataMapper()
+dust_actor = vtkActor()
+dust_actor.SetMapper(dust_mapper)
+renderer.AddActor(dust_actor)
+
 renderer.SetBackground(0.0, 0.0, 0.0)
 
 renderWindow.Render()
@@ -40,4 +46,5 @@ while True:
             if game.ship_types[instance.slot] != 0:
                 state = game.ship_states[instance.slot]
             instance.update(game)
+        dust_mapper.SetInputData(make_dust(game))
         renderer.ResetCameraClippingRange()
