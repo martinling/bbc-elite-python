@@ -23,6 +23,13 @@ crosshair_3d[:,2] = -5
 
 renderer.AddActor(lines_3d(crosshair_3d, crosshair_lines))
 
+laser_3d = np.empty((len(laser_points), 3))
+laser_3d[:,0:2] = (laser_points - 0.5) * 4.0
+laser_3d[:,2] = [0, 0, 0, 0, -100]
+
+laser_actor = lines_3d(laser_3d, laser_lines)
+renderer.AddActor(laser_actor)
+
 instances = [ShipInstance(i) for i in range(13)]
 for instance in instances:
     renderer.AddActor(instance.actor)
@@ -47,4 +54,5 @@ while True:
                 state = game.ship_states[instance.slot]
             instance.update(game)
         dust_mapper.SetInputData(make_dust(game))
+        laser_actor.SetVisibility(game.laser_firing)
         renderer.ResetCameraClippingRange()
