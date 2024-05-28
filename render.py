@@ -66,4 +66,6 @@ while True:
 
 	dust_mapper.SetInputData(make_dust(game))
 
+	renderer.ResetCameraClippingRange()
+
 	window.Render()

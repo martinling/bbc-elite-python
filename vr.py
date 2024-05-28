@@ -34,3 +34,4 @@ while True:
             if game.ship_types[instance.slot] != 0:
                 state = game.ship_states[instance.slot]
             instance.update(game)
+        renderer.ResetCameraClippingRange()
