@@ -25,6 +25,9 @@ dust_actor = vtkActor()
 dust_actor.SetMapper(dust_mapper)
 renderer.AddActor(dust_actor)
 
+laser_actor = lines_2d(laser_points, laser_lines)
+renderer.AddActor(laser_actor)
+
 game = Game()
 source = Source()
 
@@ -47,6 +50,8 @@ while True:
 		instance.update(game)
 
 	dust_mapper.SetInputData(make_dust(game))
+
+	laser_actor.SetVisibility(game.laser_firing)
 
 	renderer.ResetCameraClippingRange()
 

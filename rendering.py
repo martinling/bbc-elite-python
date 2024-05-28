@@ -184,3 +184,14 @@ border_points = np.array([
 border_lines = np.array([
 	[0, 1], [1, 2],
 	[2, 3], [3, 0]])
+
+laser_points = np.array([
+	[0.15, 0.00], [0.20, 0.00],
+	[0.80, 0.00], [0.85, 0.00],
+	[0.50, 0.50]
+])
+
+laser_lines = np.array([
+	[0, 4], [1, 4],
+	[2, 4], [3, 4]
+])
