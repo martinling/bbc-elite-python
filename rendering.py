@@ -149,6 +149,24 @@ def lines_3d(points_3d, lines):
 	actor.SetMapper(mapper)
 	return actor
 
+def make_dust(game):
+	points = vtkPoints()
+	points.SetNumberOfPoints(game.num_dust * 2)
+	lines = vtkCellArray()
+	positions = (game.dust_positions) / 50.0
+	speed = [0, 0, -game.speed / 200.0]
+	for i, speck in enumerate(positions):
+		points.SetPoint(2*i, speck)
+		points.SetPoint(2*i+1, speck - speed)
+		line = vtkLine()
+		line.GetPointIds().SetId(0, 2*i)
+		line.GetPointIds().SetId(1, 2*i+1)
+		lines.InsertNextCell(line)
+	poly = vtkPolyData()
+	poly.SetPoints(points)
+	poly.SetLines(lines)
+	return poly
+
 crosshair_points = np.array([
 	[0.5, 0.55], [0.5, 0.6],
 	[0.5, 0.45], [0.5, 0.4],
