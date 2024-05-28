@@ -141,7 +141,7 @@ def lines_2d(points, lines):
 	actor.SetMapper(mapper)
 	return actor
 
-def lines_3d(points, lines):
+def lines_3d(points_3d, lines):
 	poly = make_lines(points_3d, lines)
 	mapper = vtkPolyDataMapper()
 	mapper.SetInputData(poly)

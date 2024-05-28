@@ -17,6 +17,12 @@ renderWindow.AddRenderer(renderer)
 renderWindowInteractor = vtkOpenVRRenderWindowInteractor()
 renderWindowInteractor.SetRenderWindow(renderWindow)
 
+crosshair_3d = np.empty((len(crosshair_points), 3))
+crosshair_3d[:,0:2] = (crosshair_points - 0.5) * 4.0
+crosshair_3d[:,2] = -5
+
+renderer.AddActor(lines_3d(crosshair_3d, crosshair_lines))
+
 instances = [ShipInstance(i) for i in range(13)]
 for instance in instances:
     renderer.AddActor(instance.actor)
