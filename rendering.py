@@ -85,11 +85,11 @@ class ShipInstance(object):
 		self.mapper = vtkPolyDataMapper()
 		self.mapper.SetInputConnection(self.filter.GetOutputPort())
 		self.actor = vtkActor()
-		prop = self.actor.GetProperty()
-		prop.SetColor(0.4,0.4,0.4)
-		prop.EdgeVisibilityOn()
-		prop.SetEdgeColor(1,1,1)
-		prop.SetLineWidth(3)
+		self.prop = self.actor.GetProperty()
+		self.prop.SetColor(0.4,0.4,0.4)
+		self.prop.EdgeVisibilityOn()
+		self.prop.SetEdgeColor(1,1,1)
+		self.prop.SetLineWidth(3)
 		self.actor.SetMapper(self.mapper)
 		self.actor.VisibilityOff()
 		self.ship_type = 0
@@ -107,11 +107,13 @@ class ShipInstance(object):
 			elif ship_type & 0x80:
 				# Planet, render as a sphere.
 				self.filter.SetInputConnection(self.sphere.GetOutputPort())
+				self.prop.EdgeVisibilityOff()
 				self.actor.VisibilityOn()
 			else:
 				# Set correct model and make visible.
 				self.ship = game.ship_data[ship_type - 1]
 				self.filter.SetInputData(ship_model(self.ship))
+				self.prop.EdgeVisibilityOn()
 				self.actor.VisibilityOn()
 			self.ship_type = ship_type
 
