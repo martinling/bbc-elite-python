@@ -108,6 +108,9 @@ class ShipState(object):
 	def is_alive(self):
 		return (self.visibility >> 5) != 3
 
+	def is_firing(self):
+		return self.is_alive() and (self.visibility & 0x40) != 0
+
 class Game(object):
 
 	def __init__(self):

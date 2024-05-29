@@ -93,6 +93,14 @@ class ShipInstance(object):
 		self.actor.SetMapper(self.mapper)
 		self.actor.VisibilityOff()
 		self.ship_type = 0
+		self.laser_poly = make_lines([[0, 0, 0], [10000, 0, 0]], [[0, 1]])
+		self.laser_filter = vtkTransformPolyDataFilter()
+		self.laser_filter.SetTransform(self.transform)
+		self.laser_filter.SetInputData(self.laser_poly)
+		self.laser_mapper = vtkPolyDataMapper()
+		self.laser_mapper.SetInputConnection(self.laser_filter.GetOutputPort())
+		self.laser_actor = vtkActor()
+		self.laser_actor.SetMapper(self.laser_mapper)
 
 	def update(self, game):
 		# Get ship type and state for this slot from game state.
@@ -125,9 +133,13 @@ class ShipInstance(object):
 		matrix[3,3] = 1
 		self.transform.SetMatrix(matrix.reshape(16) / 50.0)
 		self.filter.Update()
+		self.laser_filter.Update()
 
 		# Set visibility according to whether ship is alive.
 		self.actor.SetVisibility(state.is_alive())
+
+		# Set laser visibility according to whether ship is firing.
+		self.laser_actor.SetVisibility(state.is_firing())
 
 def lines_2d(points, lines):
 	points_3d = np.empty((len(points), 3))

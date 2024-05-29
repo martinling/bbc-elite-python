@@ -19,6 +19,7 @@ renderer.AddActor(lines_2d(border_points, border_lines))
 instances = [ShipInstance(i) for i in range(13)]
 for instance in instances:
 	renderer.AddActor(instance.actor)
+	renderer.AddActor(instance.laser_actor)
 
 dust_mapper = vtkPolyDataMapper()
 dust_actor = vtkActor()
