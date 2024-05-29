@@ -95,8 +95,9 @@ class ShipInstance(object):
 		self.ship_type = 0
 
 	def update(self, game):
-		# Get ship type for this slot from game state.
+		# Get ship type and state for this slot from game state.
 		ship_type = game.ship_types[self.slot]
+		state = game.ship_states[self.slot]
 
 		if ship_type != self.ship_type:
 			# Ship type has changed.
@@ -114,11 +115,9 @@ class ShipInstance(object):
 				self.ship = game.ship_data[ship_type - 1]
 				self.filter.SetInputData(ship_model(self.ship))
 				self.prop.EdgeVisibilityOn()
-				self.actor.VisibilityOn()
 			self.ship_type = ship_type
 
 		# Set transform from ship state.
-		state = game.ship_states[self.slot]
 		matrix = np.empty((4,4))
 		matrix[0:3,0:3] = state.rot
 		matrix[0:3,3] = state.pos
@@ -126,6 +125,9 @@ class ShipInstance(object):
 		matrix[3,3] = 1
 		self.transform.SetMatrix(matrix.reshape(16) / 50.0)
 		self.filter.Update()
+
+		# Set visibility according to whether ship is alive.
+		self.actor.SetVisibility(state.is_alive())
 
 def lines_2d(points, lines):
 	points_3d = np.empty((len(points), 3))

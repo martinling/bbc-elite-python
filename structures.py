@@ -105,6 +105,9 @@ class ShipState(object):
 		self.energy = state[35]
 		self.behaviour = state[36]
 
+	def is_alive(self):
+		return (self.visibility >> 5) != 3
+
 class Game(object):
 
 	def __init__(self):
