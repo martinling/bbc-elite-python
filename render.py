@@ -40,14 +40,6 @@ while True:
 	game.update(ram)
 
 	for instance in instances:
-		if game.ship_types[instance.slot] != 0:
-			state = game.ship_states[instance.slot]
-			print("Ship ", instance.slot, "type", game.ship_types[instance.slot])
-			print("Position:", state.pos)
-			print("Rotation:")
-			print(state.rot)
-			print("Speed", state.speed, "Accel", state.accel, "Roll", state.roll, "Pitch", state.pitch)
-			print("Energy", state.energy, "Attack", hex(state.attack), "Behaviour", hex(state.behaviour), "Visiblity", hex(state.visibility))
 		instance.update(game)
 
 	dust_mapper.SetInputData(make_dust(game))
