@@ -119,10 +119,10 @@ class Game(object):
 
 	def update(self, ram):
 		# Get addresses where ship data is loaded
-		self.ship_addrs = ram[0x5600:0x5600+64].view(np.uint16)
+		self.ship_addrs = ram[0x5600:][:64].view(np.uint16)
 
 		# Read ship types. Check if a new space station has spawned.
-		ship_types = ram[0x311:0x311 + 13]
+		ship_types = ram[0x311:][:13]
 		new_station = (2 in ship_types) and not (2 in self.ship_types)
 		self.ship_types = ship_types
 
@@ -143,14 +143,14 @@ class Game(object):
 
 		# Read ship states
 		self.ship_states = [ShipState(state)
-			for state in ram[0x900:0x900 + 13*37].reshape(13,37)]
+			for state in ram[0x900:][:13*37].reshape(13,37)]
 
 		# Read dust count and positions
 		self.num_dust = ram[0x3C3]
 		self.dust_positions = np.empty((self.num_dust, 3))
-		self.dust_positions[:,0] = int8(ram[0xF5D:0xF5D+self.num_dust])
-		self.dust_positions[:,1] = int8(ram[0xF83:0xF83+self.num_dust])
-		self.dust_positions[:,2] = -ram[0xFA9:0xFA9+self.num_dust].astype(int)
+		self.dust_positions[:,0] = int8(ram[0xF5D:][:self.num_dust])
+		self.dust_positions[:,1] = int8(ram[0xF83:][:self.num_dust])
+		self.dust_positions[:,2] = -ram[0xFA9:][:self.num_dust].astype(int)
 
 		# Read player speed
 		self.speed = int(ram[0x7D])
