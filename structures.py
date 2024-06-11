@@ -43,13 +43,15 @@ class ShipData(object):
 
 	def __init__(self, ram, addr):
 		self.addr = addr
-		data = ram[addr:]
-		header = data[:20]
+		vertex_addr = addr + 20
+		header = ram[addr:vertex_addr]
 		self.cargo_type = (header[0] & 0xF0) >> 4
 		self.debris_pieces = (header[0] & 0xF)
 		self.hitbox_area = header[1:3].view(np.uint16)[0]
-		self.edge_offset = header[[3,16]].view(np.uint16)[0]
-		self.face_offset = header[[4,17]].view(np.uint16)[0]
+		edge_offset = header[[3,16]].view(np.uint16)[0].astype(int)
+		face_offset = header[[4,17]].view(np.uint16)[0].astype(int)
+		edge_addr = (addr + edge_offset) % 0x10000
+		face_addr = (addr + face_offset) % 0x10000
 		self.heap_size = header[5]
 		self.laser_vertex = header[6]
 		self.num_vertices = header[8] // 6
@@ -62,17 +64,12 @@ class ShipData(object):
 		self.scale_factor = header[18]
 		self.laser_power = header[19] >> 3
 		self.missiles = header[19] & 0x07
-		data = data[header.nbytes:]
-		vertex_data = data[:6*self.num_vertices].reshape(-1,6)
-		data = data[vertex_data.nbytes:]
-		edge_data = data[:4*self.num_edges].reshape(-1,4)
-		data = data[edge_data.nbytes:]
-		face_data = data[:4*self.num_faces].reshape(-1,4)
+		vertex_data = ram[vertex_addr:][:6*self.num_vertices].reshape(-1,6)
+		edge_data = ram[edge_addr:][:4*self.num_edges].reshape(-1,4)
+		face_data = ram[face_addr:][:4*self.num_faces].reshape(-1,4)
 		self.vertices = vertices(vertex_data)[:,::-1] * [1, 1, -1]
 		self.vertex_faces = nibbles(vertex_data[:,4:6])
 		self.edges = edge_data[:,2:4] // 4
-		if np.any(self.edges >= self.num_vertices):
-			raise ValueError
 		self.edge_faces = nibbles(edge_data[:,1:2])
 		self.face_normals = normals(face_data)[:,::-1] * [1, 1, -1]
 		self.face_centers = np.empty((self.num_faces, 3))[:,::-1] * [1, 1, -1]
@@ -142,10 +139,7 @@ class Game(object):
 					# Already read this ship type
 					continue
 			# Read this ship type
-			try:
-				self.ship_data[i] = ShipData(ram, addr)
-			except ValueError:
-				pass
+			self.ship_data[i] = ShipData(ram, addr)
 
 		# Read ship states
 		self.ship_states = [ShipState(state)
