@@ -1,3 +1,3 @@
 [submodule "b-em"]
 	path = b-em
-	url = git@github.com:martinling/b-em.git
+	url = https://github.com/martinling/b-em.git
